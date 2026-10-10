@@ -1,0 +1,61 @@
+---
+- name: Setup Minecraft server on test-server
+  hosts: test
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+          - git
+          - curl
+          - unzip
+        state: present
+
+    - name: Ensure docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add super user to docker group
+      user:
+        name: super
+        groups: docker
+        append: yes
+
+    - name: Create minecraft-server directory
+      file:
+        path: /home/super/minecraft-server
+        state: directory
+        owner: super
+        group: super
+        mode: '0755'
+
+    - name: Create backup directory
+      file:
+        path: /home/super/minecraft-server/backup
+        state: directory
+        owner: super
+        group: super
+        mode: '0755'
+
+    - name: Copy docker-compose.yml
+      copy:
+        src: /home/super/minecraft-server/docker-compose.yml
+        dest: /home/super/minecraft-server/docker-compose.yml
+        owner: super
+        group: super
+        mode: '0644'
+
+    - name: Start Minecraft server via docker compose
+      command: docker compose up -d
+      args:
+        chdir: /home/super/minecraft-server

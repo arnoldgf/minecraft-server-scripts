@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    container_name: minecraft-paper
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "26.3"
+      MEMORY: "4G"
+      ONLINE_MODE: "FALSE"
+      OVERRIDE_SERVER_PROPERTIES: "TRUE"
+      # Если хочешь автоматически скачивать плагины, можно добавить:
+      # PLUGINS: |
+      #   https://example.com/plugin1.jar
+    ports:
+      - "25565:25565"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+
